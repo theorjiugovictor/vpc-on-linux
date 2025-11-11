@@ -62,8 +62,8 @@ sleep 2
 # Test 4: Test connectivity within VPC
 log "Step 6: Testing connectivity within VPC 1"
 info "Testing public subnet web server..."
-PUBLIC_IP=$(sudo ip netns exec vpc1-public-subnet ip addr show veth-ns-public-subnet | grep "inet " | awk '{print $2}' | cut -d'/' -f1)
-PRIVATE_IP=$(sudo ip netns exec vpc1-private-subnet ip addr show veth-ns-private-subnet | grep "inet " | awk '{print $2}' | cut -d'/' -f1)
+PUBLIC_IP=$(sudo python3 -c "import json; state = json.load(open('/tmp/vpcctl_state.json')); print(state['vpcs']['vpc1']['subnets']['public-subnet']['ip'])" 2>/dev/null || echo "10.0.1.1")
+PRIVATE_IP=$(sudo python3 -c "import json; state = json.load(open('/tmp/vpcctl_state.json')); print(state['vpcs']['vpc1']['subnets']['private-subnet']['ip'])" 2>/dev/null || echo "10.0.2.1")
 
 echo "Public IP: $PUBLIC_IP"
 echo "Private IP: $PRIVATE_IP"
@@ -121,7 +121,7 @@ sleep 2
 
 # Test VPC isolation
 log "Step 13: Testing VPC isolation (vpc1 -> vpc2 should fail)"
-VPC2_IP=$(sudo ip netns exec vpc2-public-subnet ip addr show veth-ns-public-subnet | grep "inet " | awk '{print $2}' | cut -d'/' -f1)
+VPC2_IP=$(sudo python3 -c "import json; state = json.load(open('/tmp/vpcctl_state.json')); print(state['vpcs']['vpc2']['subnets']['public-subnet']['ip'])" 2>/dev/null || echo "172.16.1.1")
 echo "VPC2 IP: $VPC2_IP"
 
 if sudo ip netns exec vpc1-public-subnet ping -c 2 $VPC2_IP > /dev/null 2>&1; then

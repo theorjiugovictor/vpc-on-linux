@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # Quick Setup Script - Creates a demo VPC environment
 
 set -e
@@ -41,9 +41,9 @@ sudo python3 vpcctl.py deploy-app demo-vpc private --port 8001
 
 sleep 2
 
-# Get IPs
-PUBLIC_IP=$(sudo ip netns exec demo-vpc-public ip addr show veth-ns-public | grep "inet " | awk '{print $2}' | cut -d'/' -f1)
-PRIVATE_IP=$(sudo ip netns exec demo-vpc-private ip addr show veth-ns-private | grep "inet " | awk '{print $2}' | cut -d'/' -f1)
+# Get IPs from the state file or namespace
+PUBLIC_IP=$(sudo python3 -c "import json; state = json.load(open('/tmp/vpcctl_state.json')); print(state['vpcs']['demo-vpc']['subnets']['public']['ip'])" 2>/dev/null || echo "10.0.1.1")
+PRIVATE_IP=$(sudo python3 -c "import json; state = json.load(open('/tmp/vpcctl_state.json')); print(state['vpcs']['demo-vpc']['subnets']['private']['ip'])" 2>/dev/null || echo "10.0.2.1")
 
 echo ""
 echo -e "${GREEN}Setup Complete!${NC}"
