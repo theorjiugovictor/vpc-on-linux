@@ -74,6 +74,8 @@ def create_vpc(vpc_name, cidr_block, internet_interface="eth0"):
     
     # Create bridge for the VPC
     bridge_name = f"{vpc_name}-br0"
+    # Delete bridge if it already exists (from failed previous run)
+    run_command(f"sudo ip link del {bridge_name}", check=False)
     run_command(f"sudo ip link add {bridge_name} type bridge")
     
     # Get the first IP in the network for the bridge
@@ -124,6 +126,8 @@ def add_subnet(vpc_name, subnet_name, subnet_cidr, subnet_type="private"):
     
     # Create network namespace for the subnet
     ns_name = f"{vpc_name}-{subnet_name}"
+    # Delete namespace if it already exists (from failed previous run)
+    run_command(f"sudo ip netns del {ns_name}", check=False)
     run_command(f"sudo ip netns add {ns_name}")
     
     # Create veth pair with short names (Linux interface name limit is 15 chars)
@@ -131,6 +135,8 @@ def add_subnet(vpc_name, subnet_name, subnet_cidr, subnet_type="private"):
     name_hash = hashlib.md5(f"{vpc_name}-{subnet_name}".encode()).hexdigest()[:6]
     veth_host = f"veth-h-{name_hash}"  # veth-h-<6chars> = 13 chars
     veth_ns = f"veth-n-{name_hash}"    # veth-n-<6chars> = 13 chars
+    # Delete veth pair if it already exists (from failed previous run)
+    run_command(f"sudo ip link del {veth_host}", check=False)
     run_command(f"sudo ip link add {veth_host} type veth peer name {veth_ns}")
     
     # Connect host end to bridge
@@ -282,10 +288,14 @@ def peer_vpcs(vpc1_name, vpc2_name):
     vpc1 = state["vpcs"][vpc1_name]
     vpc2 = state["vpcs"][vpc2_name]
     
-    # Create veth pair between bridges
-    veth1 = f"peer-{vpc1_name}-{vpc2_name}"
-    veth2 = f"peer-{vpc2_name}-{vpc1_name}"
+    # Create veth pair between bridges with short names (15 char limit)
+    # Use hash to create unique short names
+    peer_hash = hashlib.md5(f"{vpc1_name}-{vpc2_name}".encode()).hexdigest()[:6]
+    veth1 = f"p1-{peer_hash}"  # p1-<6chars> = 9 chars
+    veth2 = f"p2-{peer_hash}"  # p2-<6chars> = 9 chars
     
+    # Delete veth pair if it already exists (from failed previous run)
+    run_command(f"sudo ip link del {veth1}", check=False)
     run_command(f"sudo ip link add {veth1} type veth peer name {veth2}")
     
     # Attach to respective bridges
