@@ -152,7 +152,12 @@ def add_subnet(vpc_name, subnet_name, subnet_cidr, subnet_type="private"):
     run_command(f"sudo ip netns exec {ns_name} ip link set {veth_ns} up")
     run_command(f"sudo ip netns exec {ns_name} ip link set lo up")
     
-    # Add default route through bridge
+    # Add route to VPC network first (so gateway is reachable)
+    vpc_network = ipaddress.ip_network(vpc["cidr"])
+    run_command(f"sudo ip netns exec {ns_name} ip route add {vpc['cidr']} dev {veth_ns}", check=False)
+    
+    # Add default route through bridge (delete any existing default route first)
+    run_command(f"sudo ip netns exec {ns_name} ip route del default", check=False)
     run_command(f"sudo ip netns exec {ns_name} ip route add default via {vpc['bridge_ip']}")
     
     # Configure NAT for public subnets
