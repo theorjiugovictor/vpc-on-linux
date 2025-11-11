@@ -86,6 +86,15 @@ def create_vpc(vpc_name, cidr_block, internet_interface="eth0"):
     # Enable IP forwarding
     run_command("sudo sysctl -w net.ipv4.ip_forward=1")
     
+    # Isolate this VPC bridge from any existing VPC bridges by default.
+    # This prevents the kernel from forwarding directly between VPC bridges.
+    for other_vpc, other_cfg in state.get("vpcs", {}).items():
+        other_bridge = other_cfg.get("bridge")
+        if other_bridge:
+            # Insert symmetric DROP rules (ignore failures)
+            run_command(f"sudo iptables -I FORWARD -i {bridge_name} -o {other_bridge} -j DROP", check=False)
+            run_command(f"sudo iptables -I FORWARD -i {other_bridge} -o {bridge_name} -j DROP", check=False)
+    
     # Store VPC configuration
     state["vpcs"][vpc_name] = {
         "cidr": cidr_block,
@@ -363,6 +372,19 @@ def delete_vpc(vpc_name):
             run_command(f"sudo iptables -t nat -D POSTROUTING -s {subnet['cidr']} -o {vpc['internet_interface']} -j MASQUERADE", check=False)
     
     # Delete bridge
+    # Remove isolation rules that reference this bridge (if any)
+    try:
+        for other_name, other_v in state.get("vpcs", {}).items():
+            if other_name == vpc_name:
+                continue
+            other_bridge = other_v.get("bridge")
+            if other_bridge:
+                run_command(f"sudo iptables -D FORWARD -i {vpc['bridge']} -o {other_bridge} -j DROP", check=False)
+                run_command(f"sudo iptables -D FORWARD -i {other_bridge} -o {vpc['bridge']} -j DROP", check=False)
+    except Exception:
+        # best-effort cleanup; ignore errors
+        pass
+
     run_command(f"sudo ip link set {vpc['bridge']} down", check=False)
     run_command(f"sudo ip link del {vpc['bridge']}", check=False)
     
