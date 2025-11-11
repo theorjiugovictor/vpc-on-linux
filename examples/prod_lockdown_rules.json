@@ -1,0 +1,30 @@
+{
+  "subnet": "10.0.100.0/24",
+  "description": "Production environment - strict rules",
+  "ingress": [
+    {
+      "port": 443,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "HTTPS only"
+    },
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block HTTP - use HTTPS"
+    },
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block SSH - use bastion"
+    },
+    {
+      "port": 3389,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block RDP"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "subnet": "10.0.3.0/24",
+  "description": "Application server security group",
+  "ingress": [
+    {
+      "port": 8080,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow application traffic"
+    },
+    {
+      "port": 8443,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow secure application traffic"
+    },
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow SSH for management"
+    }
+  ]
+}

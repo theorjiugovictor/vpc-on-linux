@@ -1,0 +1,30 @@
+{
+  "subnet": "10.0.1.0/24",
+  "description": "Web server security group - allows HTTP/HTTPS, blocks SSH",
+  "ingress": [
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow HTTP traffic"
+    },
+    {
+      "port": 443,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow HTTPS traffic"
+    },
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block SSH from external"
+    },
+    {
+      "port": 3306,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block MySQL access"
+    }
+  ]
+}

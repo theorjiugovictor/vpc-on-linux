@@ -1,0 +1,42 @@
+{
+  "subnet": "10.0.10.0/24",
+  "description": "Development environment - permissive rules",
+  "ingress": [
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "SSH access"
+    },
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "HTTP"
+    },
+    {
+      "port": 443,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "HTTPS"
+    },
+    {
+      "port": 3000,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "React dev server"
+    },
+    {
+      "port": 5000,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Flask/FastAPI dev"
+    },
+    {
+      "port": 8000,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Django dev"
+    }
+  ]
+}

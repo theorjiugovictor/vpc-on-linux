@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# VPC state files
+/tmp/vpcctl_state.json
+/tmp/vpcctl.log
+/tmp/vpc_test.log
+/tmp/*_web/
+/tmp/*_server.log
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+test_output/
+*.log

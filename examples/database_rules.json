@@ -1,0 +1,24 @@
+{
+  "subnet": "10.0.2.0/24",
+  "description": "Database server security group - only MySQL from web tier",
+  "ingress": [
+    {
+      "port": 3306,
+      "protocol": "tcp",
+      "action": "allow",
+      "comment": "Allow MySQL from application tier"
+    },
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block SSH"
+    },
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "action": "deny",
+      "comment": "Block HTTP"
+    }
+  ]
+}
