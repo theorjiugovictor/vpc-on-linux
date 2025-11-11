@@ -11,6 +11,7 @@ import os
 import argparse
 from pathlib import Path
 import ipaddress
+import hashlib
 
 # State file to track VPC configurations
 STATE_FILE = "/tmp/vpcctl_state.json"
@@ -125,9 +126,11 @@ def add_subnet(vpc_name, subnet_name, subnet_cidr, subnet_type="private"):
     ns_name = f"{vpc_name}-{subnet_name}"
     run_command(f"sudo ip netns add {ns_name}")
     
-    # Create veth pair
-    veth_host = f"veth-{ns_name}"
-    veth_ns = f"veth-ns-{subnet_name}"
+    # Create veth pair with short names (Linux interface name limit is 15 chars)
+    # Use hash to create unique short names
+    name_hash = hashlib.md5(f"{vpc_name}-{subnet_name}".encode()).hexdigest()[:6]
+    veth_host = f"veth-h-{name_hash}"  # veth-h-<6chars> = 13 chars
+    veth_ns = f"veth-n-{name_hash}"    # veth-n-<6chars> = 13 chars
     run_command(f"sudo ip link add {veth_host} type veth peer name {veth_ns}")
     
     # Connect host end to bridge
