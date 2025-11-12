@@ -138,11 +138,15 @@ clean:
 	@sudo python3 vpcctl.py delete-vpc vpc-a 2>/dev/null || true
 	@sudo python3 vpcctl.py delete-vpc vpc-b 2>/dev/null || true
 	@echo "Cleanup complete!"
+	# Remove temporary state and logs
+	@sudo rm -f /tmp/vpcctl_state.json /tmp/vpcctl.log 2>/dev/null || true
 
 clean-all:
 	@echo "Cleaning up all VPC resources..."
 	@sudo python3 vpcctl.py cleanup 2>/dev/null || true
 	@echo "All resources cleaned up!"
+	# Remove temporary state and logs
+	@sudo rm -f /tmp/vpcctl_state.json /tmp/vpcctl.log 2>/dev/null || true
 
 show-state:
 	@echo "Current VPC State:"

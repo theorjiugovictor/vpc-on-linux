@@ -301,13 +301,24 @@ def peer_vpcs(vpc1_name, vpc2_name):
     
     vpc1 = state["vpcs"][vpc1_name]
     vpc2 = state["vpcs"][vpc2_name]
-    
+    # Remove any isolation DROP rules between the two bridges so peering can work.
+    # These rules may have been inserted when the VPCs were created to enforce isolation.
+    try:
+        b1 = vpc1.get("bridge")
+        b2 = vpc2.get("bridge")
+        if b1 and b2:
+            run_command(f"sudo iptables -D FORWARD -i {b1} -o {b2} -j DROP", check=False)
+            run_command(f"sudo iptables -D FORWARD -i {b2} -o {b1} -j DROP", check=False)
+    except Exception:
+        # best-effort; continue even if deletion fails
+        pass
+
     # Create veth pair between bridges with short names (15 char limit)
     # Use hash to create unique short names
     peer_hash = hashlib.md5(f"{vpc1_name}-{vpc2_name}".encode()).hexdigest()[:6]
     veth1 = f"p1-{peer_hash}"  # p1-<6chars> = 9 chars
     veth2 = f"p2-{peer_hash}"  # p2-<6chars> = 9 chars
-    
+
     # Delete veth pair if it already exists (from failed previous run)
     run_command(f"sudo ip link del {veth1}", check=False)
     run_command(f"sudo ip link add {veth1} type veth peer name {veth2}")

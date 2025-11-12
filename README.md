@@ -2,6 +2,8 @@
 
 A complete implementation of AWS-style Virtual Private Cloud (VPC) functionality using Linux networking primitives.
 
+> NOTE: This repo includes both an automated demo driven by the Makefile (run `make demo` or `make test`) and a set of individual scripts/commands (`quick_setup.sh`, `test_vpc.sh`, `create_examples.sh` and `vpcctl.py`) so you can either run the full demo end-to-end or execute the steps manually for finer control. The project is intentionally structured this way to make it easy to reproduce the demo or dig into each operation step-by-step.
+
 ## 🏗️ Architecture
 
 This project creates isolated virtual networks on a single Linux host using:
